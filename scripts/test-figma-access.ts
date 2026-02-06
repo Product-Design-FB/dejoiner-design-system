@@ -2,7 +2,8 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
-const FIGMA_TOKEN = 'figd_kG15Zn9R4q12CMn-7CL2bQXOpq2uEJFLR11Fu7Sr'; // Hardcoded for test based on previous context
+// ⚠️ SECURITY: Use environment variable or Supabase settings
+const FIGMA_TOKEN = process.env.FIGMA_ACCESS_TOKEN || 'CONFIGURE_IN_ENV';
 const TEAM_ID = '1133445507023682143';
 
 async function testFigmaAccess() {

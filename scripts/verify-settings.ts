@@ -31,8 +31,8 @@ async function verifySettings() {
 
     if (tokenSetting) {
         console.log(`✓ Figma Token exists: ${tokenSetting.value.substring(0, 10)}...${tokenSetting.value.slice(-4)}`);
-        console.log(`  Expected: figd_kG15Z...r11Fu7Sr`);
-        console.log(`  Match: ${tokenSetting.value === 'figd_kG15Zn9R4q12CMn-7CL2bQXOpq2uEJFLR11Fu7Sr' ? '✅ YES' : '❌ NO'}`);
+        console.log(`  Expected: figd_kG15Z...r11Fu7Sr (TOKEN REDACTED FOR SECURITY)`);
+        console.log(`  Match: ${tokenSetting.value.startsWith('figd_') ? '✅ Has valid format' : '❌ Invalid format'}`);
     } else {
         console.log('❌ Figma Token NOT FOUND in database');
     }
