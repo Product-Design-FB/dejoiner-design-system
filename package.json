@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "slack-bot": "tsx scripts/start-bot.ts"
+    "slack-bot": "tsx scripts/start-bot.ts",
+    "refresh-thumbnails": "tsx scripts/refresh-thumbnails.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
