@@ -1,6 +1,132 @@
 import { analyzeFigmaStructure } from './gemini';
 import { getAppSettings } from './config';
 
+// Content Index Types for Deep Search
+export interface ContentIndexEntry {
+    text: string;           // The searchable text
+    location: string;       // Human-readable path (e.g., "Page 2 > Hero Section")
+    nodeId?: string;        // Figma node ID for deep linking
+    type: 'page' | 'frame' | 'component' | 'text' | 'group' | 'section';
+}
+
+/**
+ * Extract searchable content from Figma file tree
+ * Recursively walks the document structure and indexes:
+ * - Page names
+ * - Frame names
+ * - Component names
+ * - Text layer content
+ * - Group names
+ */
+export const extractContentIndex = (fileData: any): ContentIndexEntry[] => {
+    const entries: ContentIndexEntry[] = [];
+    const visited = new Set<string>();
+
+    // Skip placeholder/generic content
+    const isPlaceholder = (text: string): boolean => {
+        const lower = text.toLowerCase().trim();
+        return (
+            lower === 'lorem ipsum' ||
+            lower === 'text' ||
+            lower === 'frame' ||
+            lower.length === 0 ||
+            lower.length === 1 ||
+            /^(component|instance)\s*\d*$/i.test(lower)
+        );
+    };
+
+    const walkTree = (node: any, locationPath: string[] = []) => {
+        if (!node || !node.id) return;
+
+        // Avoid duplicates
+        const nodeKey = `${node.id}_${node.name}`;
+        if (visited.has(nodeKey)) return;
+        visited.has(nodeKey);
+
+        const nodeName = node.name || '';
+        const currentPath = [...locationPath, nodeName].filter(Boolean);
+        const location = currentPath.join(' > ');
+
+        // Index based on node type
+        switch (node.type) {
+            case 'CANVAS': // Pages
+                if (!isPlaceholder(nodeName)) {
+                    entries.push({
+                        text: nodeName,
+                        location: nodeName,
+                        nodeId: node.id,
+                        type: 'page'
+                    });
+                }
+                break;
+
+            case 'FRAME':
+                if (!isPlaceholder(nodeName)) {
+                    entries.push({
+                        text: nodeName,
+                        location,
+                        nodeId: node.id,
+                        type: 'frame'
+                    });
+                }
+                break;
+
+            case 'COMPONENT':
+            case 'COMPONENT_SET':
+            case 'INSTANCE':
+                if (!isPlaceholder(nodeName)) {
+                    entries.push({
+                        text: nodeName,
+                        location,
+                        nodeId: node.id,
+                        type: 'component'
+                    });
+                }
+                break;
+
+            case 'TEXT':
+                // Index the actual text content
+                const textContent = node.characters || nodeName;
+                if (!isPlaceholder(textContent) && textContent.length > 2) {
+                    entries.push({
+                        text: textContent.substring(0, 200), // Limit length
+                        location,
+                        nodeId: node.id,
+                        type: 'text'
+                    });
+                }
+                break;
+
+            case 'GROUP':
+            case 'SECTION':
+                if (!isPlaceholder(nodeName)) {
+                    entries.push({
+                        text: nodeName,
+                        location,
+                        nodeId: node.id,
+                        type: node.type.toLowerCase() as 'group' | 'section'
+                    });
+                }
+                break;
+        }
+
+        // Recursively process children
+        if (node.children && Array.isArray(node.children)) {
+            node.children.forEach((child: any) => {
+                walkTree(child, currentPath);
+            });
+        }
+    };
+
+    // Start walking from document root
+    if (fileData.document) {
+        walkTree(fileData.document, []);
+    }
+
+    console.log(`📑 Extracted ${entries.length} content index entries`);
+    return entries;
+};
+
 export const getFigmaThumbnail = async (url: string): Promise<string> => {
     try {
         const settings = await getAppSettings();
@@ -77,7 +203,10 @@ export const getFigmaFileMeta = async (url: string) => {
             });
         }
 
-        // 3. Delegate "Sorting it out" to Groq AI
+        // 3. Extract content index for deep search
+        const contentIndex = extractContentIndex(data);
+
+        // 4. Delegate "Sorting it out" to Groq AI
         console.log("🛠️ Figma: Sending manifest to AI ->", JSON.stringify(manifest).slice(0, 200) + "...");
         const aiAnalysis = await analyzeFigmaStructure(fileName, manifest);
         console.log("✨ Figma: AI Analysis Result ->", aiAnalysis);
@@ -89,7 +218,8 @@ export const getFigmaFileMeta = async (url: string) => {
             frames: aiAnalysis.keyFrames || [],
             summary: aiAnalysis.summary,
             milestone: aiAnalysis.milestone,
-            rawManifest: manifest
+            rawManifest: manifest,
+            contentIndex // NEW: For deep search
         };
     } catch (error) {
         console.error("Figma Meta AI Error:", error);

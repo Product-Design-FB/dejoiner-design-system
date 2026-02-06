@@ -56,7 +56,8 @@ export async function POST(request: Request) {
                 thumbnail_url: thumbnailUrl || file.thumbnail_url,
                 metadata,
                 last_edited_at: file.last_modified,
-                author_name: 'Figma Sync'
+                author_name: 'Figma Sync',
+                content_index: figmaMeta?.contentIndex || [] // NEW: Save content index for deep search
             }]);
 
             if (!error) {
