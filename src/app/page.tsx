@@ -257,7 +257,7 @@ export default function Home() {
     }
 
     return result;
-  }, [resources, searchQuery, activeFilter, sortBy, dateFilter]);
+  }, [resources, searchQuery, activeFilter, sortBy, dateFilter, selectedProjectId]);
 
   const handleAddResource = async (e: React.FormEvent) => {
     e.preventDefault();
