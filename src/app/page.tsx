@@ -89,7 +89,7 @@ export default function Home() {
   const [projects, setProjects] = useState<any[]>([]);
 
   // View Mode State
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [showAllProjects, setShowAllProjects] = useState(false);
 
   const fetchResources = async () => {
@@ -257,7 +257,7 @@ export default function Home() {
     }
 
     return result;
-  }, [resources, searchQuery, activeFilter, sortBy, dateFilter, selectedProjectId]);
+  }, [resources, searchQuery, activeFilter, sortBy, dateFilter]);
 
   const handleAddResource = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -448,29 +448,43 @@ export default function Home() {
 
   return (
     <div className="dashboard">
-      {/* Header Section */}
-      <div className="page-header">
-        <div className="header-content">
-          <h1 className="page-title">Resource Gallery</h1>
-          <p className="page-subtitle">Find what you need, when you need it</p>
+      {/* Top Navigation Bar */}
+      <nav className="top-nav">
+        <div className="nav-content">
+          <div className="nav-left">
+            <a href="/" className="nav-logo">
+              <span className="logo-icon">◆</span>
+              <span className="logo-text">Dejoiner</span>
+            </a>
+          </div>
+          <div className="nav-center">
+            <div className="nav-search-wrapper">
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                className="nav-search-input"
+                placeholder="Search resources..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="nav-right">
+            <button className="btn btn-primary btn-sm" onClick={() => setShowAddModal(true)}>
+              + Add New
+            </button>
+            <a href="/settings" className="nav-link">⚙️ Settings</a>
+            <button className="nav-profile">
+              <span className="profile-avatar">👤</span>
+            </button>
+          </div>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
-          <span>+</span> Add New
-        </button>
-      </div>
+      </nav>
 
-      {/* Search Bar - Standalone */}
-      <div className="main-search-section">
-        <div className="search-wrapper-large">
-          <span className="search-icon">🔍</span>
-          <input
-            type="text"
-            className="search-input-large"
-            placeholder="Search resources..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+      {/* Page Title */}
+      <div className="page-title-section">
+        <h1 className="page-title">Resource Gallery</h1>
+        <p className="page-subtitle">Find what you need, when you need it</p>
       </div>
 
       {/* Recent Projects Grid */}
@@ -540,10 +554,10 @@ export default function Home() {
             ⊞ Grid
           </button>
           <button
-            className={`btn btn-outline ${viewMode === 'list' ? 'active' : ''}`}
-            onClick={() => setViewMode('list')}
+            className={`btn btn-outline ${viewMode === 'table' ? 'active' : ''}`}
+            onClick={() => setViewMode('table')}
           >
-            ☰ List
+            ☰ Table
           </button>
         </div>
 
@@ -666,98 +680,116 @@ export default function Home() {
         </div>
       )}
 
-      {/* Resource Grid/List */}
-      <div className={`resource-${viewMode}`}>
-        {loading ? (
-          <div className="loading-state">
-            <div className="spinner"></div>
-            <span>Loading resources...</span>
-          </div>
-        ) : filteredResources.length === 0 ? (
-          <div className="empty-state">
-            <span className="empty-icon">📭</span>
-            <p>No resources found matching your criteria.</p>
-          </div>
-        ) : filteredResources.map((resource) => (
-          <div
-            key={resource.id}
-            className="resource-card-link"
-            onClick={() => openDetailPanel(resource)}
-            onContextMenu={(e) => handleContextMenu(e, resource)}
-          >
-            <article className="resource-card">
-              {/* Three-dot menu */}
-              <button
-                className="card-menu-btn"
-                onClick={(e) => { e.stopPropagation(); setContextMenu({ x: e.clientX, y: e.clientY, resource }); }}
-              >
-                ⋮
-              </button>
-              {/* Card Image */}
-              <div className="card-thumbnail">
-                <img
-                  src={resource.thumbnail_url || 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80'}
-                  alt={resource.title || 'Resource'}
-                />
-                <span className={`source-badge badge ${getSourceBadgeClass(resource.type)}`}>
-                  {getSourceIcon(resource.type)} {resource.type}
-                </span>
-                {/* Version badge removed per user request */}
-              </div>
-
-              {/* Card Body */}
-              <div className="card-body">
-                <div className="card-header">
-                  <span className="breadcrumb">{resource.project?.name || "Shared"}</span>
-                  {resource.metadata?.milestone && (
-                    <span className="badge badge-info">{resource.metadata.milestone}</span>
-                  )}
-                </div>
-
-                <h3 className="card-title">{resource.title || "Untitled Resource"}</h3>
-
-                {resource.metadata?.frames && resource.metadata.frames.length > 0 && (
-                  <div className="frame-tags">
-                    {resource.metadata.frames.slice(0, 3).map((frame: string, idx: number) => (
-                      <span key={idx} className="tag">{frame}</span>
-                    ))}
-                    {resource.metadata.frames.length > 3 && (
-                      <span className="tag">+{resource.metadata.frames.length - 3}</span>
-                    )}
-                  </div>
-                )}
-
-                <div className="ai-context">
-                  <span className="ai-icon">✨</span>
-                  <p>{resource.metadata?.ai_summary || resource.slack_context?.[0]?.gemini_summary || "Contextual summary pending..."}</p>
-                </div>
-              </div>
-
-              {/* Card Footer */}
-              <footer className="card-footer">
-                <div className="meta-row">
-                  <span className="meta-item" suppressHydrationWarning>
-                    📁 {formatDate(resource.created_at)}
+      {/* Resource Grid View */}
+      {viewMode === 'grid' && (
+        <div className="resource-grid">
+          {loading ? (
+            <div className="loading-state">
+              <div className="spinner"></div>
+              <span>Loading resources...</span>
+            </div>
+          ) : filteredResources.length === 0 ? (
+            <div className="empty-state">
+              <span className="empty-icon">📭</span>
+              <p>No resources found matching your criteria.</p>
+            </div>
+          ) : filteredResources.map((resource) => (
+            <div
+              key={resource.id}
+              className="resource-card-link"
+              onClick={() => openDetailPanel(resource)}
+              onContextMenu={(e) => handleContextMenu(e, resource)}
+            >
+              <article className="resource-card">
+                <button
+                  className="card-menu-btn"
+                  onClick={(e) => { e.stopPropagation(); setContextMenu({ x: e.clientX, y: e.clientY, resource }); }}
+                >
+                  ⋮
+                </button>
+                <div className="card-thumbnail">
+                  <img
+                    src={resource.thumbnail_url || 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80'}
+                    alt={resource.title || 'Resource'}
+                  />
+                  <span className={`source-badge badge ${getSourceBadgeClass(resource.type)}`}>
+                    {getSourceIcon(resource.type)} {resource.type}
                   </span>
-                  {resource.last_edited_at && (
-                    <span className="meta-item highlight" suppressHydrationWarning>
-                      ⚡ {formatDate(resource.last_edited_at)}
-                    </span>
-                  )}
                 </div>
-                {resource.author_name && (
-                  <div className="author-info">
-                    {resource.author_avatar && (
-                      <img src={resource.author_avatar} alt="" className="author-avatar" />
-                    )}
-                    <span>👤 {resource.author_name}</span>
-                  </div>
-                )}
-              </footer>
-            </article>
-          </div>
-        ))}
-      </div>
+                <div className="card-body">
+                  <span className="breadcrumb">{resource.project?.name || "Shared"}</span>
+                  <h3 className="card-title">{resource.title || "Untitled Resource"}</h3>
+                </div>
+              </article>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Resource Table View */}
+      {viewMode === 'table' && (
+        <div className="resource-table-container">
+          {loading ? (
+            <div className="loading-state">
+              <div className="spinner"></div>
+              <span>Loading resources...</span>
+            </div>
+          ) : filteredResources.length === 0 ? (
+            <div className="empty-state">
+              <span className="empty-icon">📭</span>
+              <p>No resources found matching your criteria.</p>
+            </div>
+          ) : (
+            <table className="resource-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Project</th>
+                  <th>Type</th>
+                  <th>Author</th>
+                  <th>Date</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredResources.map((resource) => (
+                  <tr
+                    key={resource.id}
+                    onClick={() => openDetailPanel(resource)}
+                    onContextMenu={(e) => handleContextMenu(e, resource)}
+                  >
+                    <td className="table-name-cell">
+                      <div className="table-thumb">
+                        <img
+                          src={resource.thumbnail_url || 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80'}
+                          alt=""
+                        />
+                      </div>
+                      <span className="table-resource-title">{resource.title || "Untitled"}</span>
+                    </td>
+                    <td>{resource.project?.name || "Shared"}</td>
+                    <td>
+                      <span className={`badge ${getSourceBadgeClass(resource.type)}`}>
+                        {getSourceIcon(resource.type)} {resource.type}
+                      </span>
+                    </td>
+                    <td>{resource.author_name || "Unknown"}</td>
+                    <td className="table-date" suppressHydrationWarning>{formatDate(resource.created_at)}</td>
+                    <td>
+                      <button
+                        className="table-menu-btn"
+                        onClick={(e) => { e.stopPropagation(); setContextMenu({ x: e.clientX, y: e.clientY, resource }); }}
+                      >
+                        ⋮
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
 
       {/* Context Menu */}
       {contextMenu && (
