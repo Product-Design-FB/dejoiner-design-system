@@ -1253,8 +1253,8 @@ a:hover {
    ------------------------------------------------ */
 .resource-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  /* Default 4 columns for standard screens */
+  grid-template-columns: repeat(5, 1fr);
+  /* 5 columns for 1440px */
   gap: var(--space-lg);
   max-width: 1440px;
   margin: 0 auto var(--space-3xl);
@@ -1312,8 +1312,9 @@ a:hover {
 }
 
 .resource-list .ai-context {
-  display: none;
-  /* Hide AI context in list view for compactness */
+  display: flex;
+  /* Show AI context in list view */
+  margin-top: var(--space-xs);
 }
 
 .resource-list .frames {
@@ -1326,6 +1327,12 @@ a:hover {
 
 /* Grid responsive breakpoints - optimized for standard screen sizes */
 @media (max-width: 1200px) {
+  .resource-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1000px) {
   .resource-grid {
     grid-template-columns: repeat(3, 1fr);
   }
