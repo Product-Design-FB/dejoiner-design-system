@@ -1,34 +1,33 @@
 /* ═══════════════════════════════════════════════════════════
-   DEJOINER DESIGN SYSTEM V3
-   Reference: "Internet Gems" + "Praktika School"
-   Vibe: Museum curator meets design studio
-   Font: Inter (Grotesque) throughout - NO mixing fonts
+   DEJOINER DESIGN SYSTEM V4 — PREMIUM DARK MODE
+   Inspiration: Linear, Vercel, Raycast
+   Vibe: Premium SaaS meets design studio
    ═══════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
   /* ──────────────────────────────────────────────────────────
-     TYPOGRAPHY - Inter Only
+     TYPOGRAPHY
      ────────────────────────────────────────────────────────── */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* Font Weights - Only what we need */
+  /* Font Weights */
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
   --weight-bold: 700;
 
-  /* Font Sizes - Measured scale */
-  --text-display: 48px;
-  --text-h1: 36px;
-  --text-h2: 28px;
-  --text-h3: 22px;
+  /* Font Sizes */
+  --text-display: 52px;
+  --text-h1: 40px;
+  --text-h2: 32px;
+  --text-h3: 24px;
   --text-h4: 18px;
   --text-body: 15px;
   --text-small: 14px;
   --text-label: 13px;
-  --text-tiny: 12px;
+  --text-tiny: 11px;
 
   /* Line Heights */
   --leading-tight: 1.2;
@@ -36,91 +35,117 @@
   --leading-relaxed: 1.6;
 
   /* ──────────────────────────────────────────────────────────
-     COLORS - Minimal Palette
+     COLORS — Dark Mode Premium
      ────────────────────────────────────────────────────────── */
 
-  /* Backgrounds */
-  --bg-white: #FFFFFF;
-  --bg-subtle: #FAFAFA;
-  --bg-muted: #F5F5F5;
+  /* Backgrounds - Deep layered */
+  --bg-base: #0A0A0A;
+  --bg-elevated: #111111;
+  --bg-surface: #171717;
+  --bg-hover: #1F1F1F;
+  --bg-active: #262626;
 
-  /* Text */
-  --text-primary: #0A0A0A;
-  --text-secondary: #525252;
-  --text-tertiary: #A3A3A3;
+  /* Text - Crisp hierarchy */
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1A1;
+  --text-tertiary: #6B6B6B;
+  --text-muted: #525252;
 
-  /* Borders */
-  --border-default: #E5E5E5;
-  --border-strong: #D4D4D4;
+  /* Borders - Subtle definition */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-focus: rgba(99, 102, 241, 0.5);
 
-  /* Brand Colors - Used sparingly */
-  --color-blue: #0066FF;
-  --color-blue-hover: #0052CC;
-  --color-blue-bg: #F0F6FF;
-  --color-blue-border: #D4E5FF;
+  /* Accents - Vibrant but refined */
+  --color-primary: #6366F1;
+  /* Indigo - Primary brand */
+  --color-primary-glow: rgba(99, 102, 241, 0.15);
+  --color-primary-border: rgba(99, 102, 241, 0.3);
 
-  --color-pink: #FF0062;
-  --color-pink-bg: #FFF0F6;
-  --color-pink-border: #FFD4E8;
+  --color-blue: #3B82F6;
+  --color-blue-glow: rgba(59, 130, 246, 0.15);
 
-  --color-orange: #FF6B00;
-  --color-orange-bg: #FFF5F0;
-  --color-orange-border: #FFE0CC;
+  --color-cyan: #06B6D4;
+  --color-cyan-glow: rgba(6, 182, 212, 0.15);
+
+  --color-green: #10B981;
+  --color-green-glow: rgba(16, 185, 129, 0.15);
+
+  --color-pink: #EC4899;
+  --color-pink-glow: rgba(236, 72, 153, 0.15);
+
+  --color-orange: #F97316;
+  --color-orange-glow: rgba(249, 115, 22, 0.15);
+
+  /* Source-specific */
+  --color-figma: #A259FF;
+  --color-figma-glow: rgba(162, 89, 255, 0.2);
+  --color-github: #F0F6FC;
+  --color-drive: #34A853;
 
   /* ──────────────────────────────────────────────────────────
-     SPACING - Generous, Museum-like
+     SPACING
      ────────────────────────────────────────────────────────── */
-  --space-4: 4px;
-  --space-8: 8px;
-  --space-12: 12px;
-  --space-16: 16px;
-  --space-24: 24px;
-  --space-32: 32px;
-  --space-48: 48px;
-  --space-64: 64px;
-  --space-96: 96px;
-  --space-120: 120px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
 
-  /* Page Margins */
-  --margin-desktop: 120px;
-  --margin-tablet: 60px;
-  --margin-mobile: 24px;
-
-  /* Content Max Widths */
+  /* Layout */
+  --max-width: 1280px;
   --max-text: 720px;
-  --max-search: 640px;
-  --max-grid: 1200px;
+  --sidebar-width: 260px;
 
   /* ──────────────────────────────────────────────────────────
      BORDERS & RADIUS
      ────────────────────────────────────────────────────────── */
-  --border-width: 1px;
-  --border-width-focus: 1.5px;
-
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
 
   /* ──────────────────────────────────────────────────────────
-     SHADOWS - Subtle only
+     SHADOWS & GLOWS
      ────────────────────────────────────────────────────────── */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-focus: 0 0 0 3px var(--color-blue-bg);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border-subtle);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-subtle);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-subtle);
+
+  /* Glow effects */
+  --glow-primary: 0 0 20px var(--color-primary-glow), 0 0 40px var(--color-primary-glow);
+  --glow-blue: 0 0 20px var(--color-blue-glow);
+  --glow-cyan: 0 0 20px var(--color-cyan-glow);
+
+  /* Focus ring */
+  --ring-focus: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--color-primary);
 
   /* ──────────────────────────────────────────────────────────
      TRANSITIONS
      ────────────────────────────────────────────────────────── */
-  --transition-fast: 150ms ease;
-  --transition-default: 200ms ease;
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-default: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* ──────────────────────────────────────────────────────────
      COMPONENT SIZES
      ────────────────────────────────────────────────────────── */
   --input-height: 44px;
-  --button-height: 44px;
-  --sidebar-width: 240px;
+  --input-height-lg: 52px;
+  --button-height: 40px;
+  --button-height-lg: 48px;
   --icon-size: 20px;
 }
 
@@ -140,6 +165,7 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -148,7 +174,34 @@ body {
   font-weight: var(--weight-regular);
   line-height: var(--leading-relaxed);
   color: var(--text-primary);
-  background: var(--bg-white);
+  background: var(--bg-base);
+  min-height: 100vh;
+}
+
+/* Selection */
+::selection {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -227,108 +280,156 @@ a:hover {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   BUTTONS - Clean, Obvious, Clickable
+   BUTTONS — Premium with Glow Effects
    ═══════════════════════════════════════════════════════════ */
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-8);
+  gap: var(--space-2);
   height: var(--button-height);
-  padding: var(--space-12) var(--space-24);
+  padding: 0 var(--space-5);
   font-family: var(--font-sans);
-  font-size: var(--text-body);
-  font-weight: var(--weight-semibold);
+  font-size: var(--text-small);
+  font-weight: var(--weight-medium);
   line-height: 1;
-  border-radius: var(--radius-lg);
-  border: none;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
   cursor: pointer;
   transition: all var(--transition-default);
   text-decoration: none;
+  white-space: nowrap;
 }
 
-/* Primary Button - Solid Blue */
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ring-focus);
+}
+
+/* Primary Button — Gradient with Glow */
 .btn-primary {
-  background: var(--color-blue);
+  background: linear-gradient(135deg, var(--color-primary) 0%, #4F46E5 100%);
   color: white;
+  border: 1px solid var(--color-primary-border);
 }
 
 .btn-primary:hover {
-  background: var(--color-blue-hover);
-  box-shadow: 0 2px 8px rgba(0, 102, 255, 0.2);
+  background: linear-gradient(135deg, #7C7FFF 0%, var(--color-primary) 100%);
+  box-shadow: var(--glow-primary), 0 4px 12px rgba(99, 102, 241, 0.3);
   transform: translateY(-1px);
 }
 
-/* Secondary Button - Outline Blue */
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 0 10px var(--color-primary-glow);
+}
+
+/* Secondary Button — Glass Effect */
 .btn-secondary {
-  background: white;
-  color: var(--color-blue);
-  border: var(--border-width-focus) solid var(--color-blue);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
 }
 
 .btn-secondary:hover {
-  background: var(--color-blue-bg);
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
 }
 
-/* Ghost Button - Subtle */
+/* Ghost Button — Minimal */
 .btn-ghost {
   background: transparent;
   color: var(--text-secondary);
   border: none;
-  padding: var(--space-8) var(--space-12);
+  padding: var(--space-2) var(--space-3);
   height: auto;
 }
 
 .btn-ghost:hover {
-  background: var(--bg-muted);
+  background: var(--bg-hover);
   color: var(--text-primary);
+}
+
+/* Outline Button */
+.btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+}
+
+.btn-outline:hover {
+  background: var(--bg-surface);
+  border-color: var(--border-strong);
 }
 
 /* Small Button */
 .btn-sm {
-  height: 36px;
-  padding: var(--space-8) var(--space-16);
-  font-size: var(--text-small);
+  height: 32px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-label);
+}
+
+/* Large Button */
+.btn-lg {
+  height: var(--button-height-lg);
+  padding: 0 var(--space-6);
+  font-size: var(--text-body);
+  border-radius: var(--radius-lg);
+}
+
+/* Icon Button */
+.btn-icon {
+  width: var(--button-height);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.btn-icon.btn-sm {
+  width: 32px;
+  height: 32px;
 }
 
 /* Button with Icon */
 .btn svg,
 .btn .icon {
-  width: var(--icon-size);
-  height: var(--icon-size);
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   INPUT FIELDS - Clear, Defined, Functional
+   INPUT FIELDS — Premium Dark Mode
    ═══════════════════════════════════════════════════════════ */
 
 .input {
   width: 100%;
   height: var(--input-height);
-  padding: var(--space-12) var(--space-16);
+  padding: var(--space-3) var(--space-4);
   font-family: var(--font-sans);
   font-size: var(--text-body);
   font-weight: var(--weight-regular);
   color: var(--text-primary);
-  background: var(--bg-white);
-  border: var(--border-width-focus) solid var(--border-default);
-  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
   outline: none;
   transition: all var(--transition-fast);
 }
 
 .input::placeholder {
-  color: var(--text-tertiary);
+  color: var(--text-muted);
 }
 
 .input:hover {
   border-color: var(--border-strong);
+  background: var(--bg-hover);
 }
 
 .input:focus {
-  border-color: var(--color-blue);
-  box-shadow: var(--shadow-focus);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+  background: var(--bg-surface);
 }
 
 /* Search Input with Icon */
@@ -368,121 +469,145 @@ a:hover {
   appearance: none;
   width: 100%;
   height: var(--input-height);
-  padding: var(--space-12) var(--space-32) var(--space-12) var(--space-16);
+  padding: var(--space-3) var(--space-8) var(--space-3) var(--space-4);
   font-family: var(--font-sans);
-  font-size: var(--text-label);
+  font-size: var(--text-small);
   font-weight: var(--weight-regular);
   color: var(--text-primary);
-  background: var(--bg-white);
-  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23525252' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background: var(--bg-surface);
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236B6B6B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right var(--space-12) center;
-  border: var(--border-width) solid var(--border-default);
-  border-radius: var(--radius-lg);
+  background-position: right var(--space-3) center;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .select:hover {
   border-color: var(--border-strong);
+  background-color: var(--bg-hover);
 }
 
 .select:focus {
   outline: none;
-  border-color: var(--color-blue);
-  box-shadow: var(--shadow-focus);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
 }
 
 /* ═══════════════════════════════════════════════════════════
-   BADGES - Subtle, Not Screaming
+   BADGES — Dark Mode with Glows
    ═══════════════════════════════════════════════════════════ */
 
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-4) 10px;
+  gap: var(--space-1);
+  padding: 4px 8px;
   font-family: var(--font-sans);
   font-size: var(--text-tiny);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-medium);
   line-height: 1;
   border-radius: var(--radius-sm);
   white-space: nowrap;
 }
 
-/* Source Badges */
+/* Source Badges - With subtle glows */
 .badge-figma {
-  background: var(--color-blue-bg);
-  color: var(--color-blue);
-  border: var(--border-width) solid var(--color-blue-border);
+  background: var(--color-figma-glow);
+  color: var(--color-figma);
+  border: 1px solid rgba(162, 89, 255, 0.3);
 }
 
 .badge-github {
-  background: var(--color-pink-bg);
-  color: var(--color-pink);
-  border: var(--border-width) solid var(--color-pink-border);
+  background: rgba(240, 246, 252, 0.1);
+  color: var(--color-github);
+  border: 1px solid rgba(240, 246, 252, 0.2);
 }
 
 .badge-drive,
 .badge-docs {
-  background: var(--color-orange-bg);
+  background: var(--color-orange-glow);
   color: var(--color-orange);
-  border: var(--border-width) solid var(--color-orange-border);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.badge-figjam {
+  background: var(--color-pink-glow);
+  color: var(--color-pink);
+  border: 1px solid rgba(236, 72, 153, 0.3);
 }
 
 /* Neutral Tags */
 .tag {
   display: inline-flex;
   align-items: center;
-  padding: var(--space-4) var(--space-12);
+  padding: 4px var(--space-3);
   font-family: var(--font-sans);
   font-size: var(--text-label);
   font-weight: var(--weight-medium);
   color: var(--text-secondary);
-  background: var(--bg-muted);
-  border: var(--border-width) solid var(--border-default);
-  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
 }
 
 /* ═══════════════════════════════════════════════════════════
-   CARDS - Like "Internet Gems" Cards
+   CARDS — Premium Dark Mode
    ═══════════════════════════════════════════════════════════ */
 
 .card {
-  background: var(--bg-white);
-  border: var(--border-width) solid var(--border-default);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-xl);
-  padding: var(--space-24);
-  transition: all var(--transition-default);
+  padding: var(--space-6);
+  transition: all var(--transition-smooth);
 }
 
 .card:hover {
   border-color: var(--border-strong);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
 
 /* Resource Card */
 .resource-card {
-  background: var(--bg-white);
-  border: var(--border-width) solid var(--border-default);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-xl);
-  padding: var(--space-24);
+  padding: var(--space-5);
   cursor: pointer;
-  transition: all var(--transition-default);
+  transition: all var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.resource-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--color-primary-glow), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-default);
 }
 
 .resource-card:hover {
-  border-color: var(--border-strong);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  border-color: var(--color-primary-border);
+  box-shadow: var(--shadow-lg), var(--glow-primary);
+  transform: translateY(-4px);
+}
+
+.resource-card:hover::before {
+  opacity: 0.5;
 }
 
 .resource-card .card-header {
   display: flex;
   align-items: center;
-  gap: var(--space-8);
-  margin-bottom: var(--space-4);
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  position: relative;
+  z-index: 1;
 }
 
 .resource-card .source-icon {
@@ -491,23 +616,23 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-sm);
   font-size: var(--text-tiny);
 }
 
 .resource-card .source-icon.figma {
-  background: var(--color-blue);
-  color: white;
+  background: var(--color-figma-glow);
+  color: var(--color-figma);
 }
 
 .resource-card .source-icon.github {
-  background: var(--color-pink);
-  color: white;
+  background: rgba(240, 246, 252, 0.1);
+  color: var(--color-github);
 }
 
 .resource-card .source-icon.drive {
-  background: var(--color-orange);
-  color: white;
+  background: var(--color-green-glow);
+  color: var(--color-green);
 }
 
 .resource-card .card-title {
