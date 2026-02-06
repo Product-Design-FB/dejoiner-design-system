@@ -2,7 +2,14 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { getFigmaTeamProjects, getFigmaProjectFiles, getFigmaFileMeta, getFigmaThumbnail } from '@/lib/figma';
 
+// Vercel serverless function timeout is 10 seconds
+// We'll stop processing at 8 seconds to have time to return response
+const MAX_EXECUTION_TIME_MS = 8000;
+const MAX_FILES_PER_REQUEST = 50; // Safety limit
+
 export async function POST(request: Request) {
+    const startTime = Date.now();
+
     try {
         const { teamId } = await request.json();
 
@@ -10,6 +17,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Team ID is required' }, { status: 400 });
         }
 
+        console.log(`🔄 Starting Figma team sync for team: ${teamId}`);
         const { projects, error: fetchError } = await getFigmaTeamProjects(teamId);
         if (fetchError) {
             return NextResponse.json({ success: false, message: fetchError });
@@ -18,8 +26,17 @@ export async function POST(request: Request) {
         let totalSynced = 0;
         let totalNew = 0;
         let totalUpdated = 0;
+        let totalSkipped = 0;
+        let timedOut = false;
 
-        for (const project of projects) {
+        projectLoop: for (const project of projects) {
+            // Check timeout before processing each project
+            if (Date.now() - startTime > MAX_EXECUTION_TIME_MS) {
+                console.warn('⏱️ Approaching timeout limit, stopping sync early');
+                timedOut = true;
+                break projectLoop;
+            }
+
             // 1. Sync Project to DB
             let dbProjectId = null;
             const { data: existingProject } = await supabase.from('projects').select('id').eq('name', project.name).single();
@@ -40,6 +57,20 @@ export async function POST(request: Request) {
             if (!files) continue;
 
             for (const file of files) {
+                // Check file limit
+                if (totalSynced >= MAX_FILES_PER_REQUEST) {
+                    console.warn(`📦 Reached file limit (${MAX_FILES_PER_REQUEST}), stopping`);
+                    timedOut = true;
+                    break projectLoop;
+                }
+
+                // Check timeout
+                if (Date.now() - startTime > MAX_EXECUTION_TIME_MS) {
+                    console.warn('⏱️ Approaching timeout limit, stopping sync early');
+                    timedOut = true;
+                    break projectLoop;
+                }
+
                 const fileKey = file.key;
                 const fileName = file.name;
                 const fileUrl = `https://www.figma.com/file/${fileKey}`;
@@ -47,58 +78,78 @@ export async function POST(request: Request) {
                 // Check if exists
                 const { data: existing } = await supabase.from('resources').select('id, title').eq('url', fileUrl).single();
 
-                let operation = 'none';
-
                 if (existing) {
-                    // Smart Upsert: Update title, time, and project linkage
+                    // OPTIMIZATION: For existing files, just update metadata - skip heavy API calls
                     await supabase.from('resources').update({
                         title: fileName,
                         last_edited_at: file.last_modified,
-                        project_id: dbProjectId // Link to project
+                        project_id: dbProjectId
                     }).eq('id', existing.id);
-                    operation = 'updated';
                     totalUpdated++;
                 } else {
-                    // New Insert
-                    const figmaMeta = await getFigmaFileMeta(fileUrl);
-                    const thumbnail = await getFigmaThumbnail(fileUrl);
+                    // NEW FILE: Fetch full metadata (this is slower but only for new files)
+                    try {
+                        const figmaMeta = await getFigmaFileMeta(fileUrl);
+                        const thumbnail = await getFigmaThumbnail(fileUrl);
 
-                    let metadata: any = {};
-                    if (figmaMeta) {
-                        metadata = {
-                            frames: figmaMeta.frames,
-                            milestone: figmaMeta.milestone,
-                            ai_summary: figmaMeta.summary
-                        };
+                        let metadata: any = {};
+                        if (figmaMeta) {
+                            metadata = {
+                                frames: figmaMeta.frames,
+                                milestone: figmaMeta.milestone,
+                                ai_summary: figmaMeta.summary
+                            };
+                        }
+
+                        await supabase.from('resources').insert([{
+                            url: fileUrl,
+                            title: fileName,
+                            type: 'figma',
+                            version: 'New',
+                            thumbnail_url: thumbnail || file.thumbnail_url,
+                            metadata: metadata,
+                            last_edited_at: file.last_modified,
+                            author_name: 'Figma Team Sync',
+                            author_avatar: 'https://static.figma.com/app/icon/1/favicon.png',
+                            project_id: dbProjectId
+                        }]);
+                        totalNew++;
+                    } catch (fileError) {
+                        console.error(`❌ Error processing file ${fileName}:`, fileError);
+                        totalSkipped++;
+                        continue; // Skip this file and continue with others
                     }
-
-                    await supabase.from('resources').insert([{
-                        url: fileUrl,
-                        title: fileName,
-                        type: 'figma',
-                        version: 'New',
-                        thumbnail_url: thumbnail || file.thumbnail_url,
-                        metadata: metadata,
-                        last_edited_at: file.last_modified,
-                        author_name: 'Figma Team Sync',
-                        author_avatar: 'https://static.figma.com/app/icon/1/favicon.png',
-                        project_id: dbProjectId // Mapped Project ID
-                    }]);
-                    operation = 'new';
-                    totalNew++;
                 }
                 totalSynced++;
             }
         }
 
+        const elapsedTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        const message = timedOut
+            ? `⚠️ Partial sync (${elapsedTime}s): ${totalNew} new, ${totalUpdated} updated, ${totalSkipped} skipped. Run again to continue.`
+            : `✅ Complete sync (${elapsedTime}s): ${totalNew} new, ${totalUpdated} updated.`;
+
+        console.log(message);
+
         return NextResponse.json({
             success: true,
-            message: `Sync Complete: ${totalNew} new files added, ${totalUpdated} updated.`,
-            stats: { total: totalSynced, new: totalNew, updated: totalUpdated }
+            message,
+            stats: {
+                total: totalSynced,
+                new: totalNew,
+                updated: totalUpdated,
+                skipped: totalSkipped,
+                timedOut,
+                elapsedSeconds: parseFloat(elapsedTime)
+            }
         });
 
     } catch (error: any) {
-        console.error('Team Sync Error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        const elapsedTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        console.error(`❌ Team Sync Error after ${elapsedTime}s:`, error);
+        return NextResponse.json({
+            error: error.message,
+            elapsedSeconds: parseFloat(elapsedTime)
+        }, { status: 500 });
     }
 }
