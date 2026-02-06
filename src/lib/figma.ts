@@ -11,13 +11,28 @@ export const getFigmaThumbnail = async (url: string): Promise<string> => {
         if (!matches) return "";
         const fileKey = matches[1];
 
-        const response = await fetch(`https://api.figma.com/v1/files/${fileKey}/images`, {
+        console.log(`🖼️ Fetching Figma cover image for file: ${fileKey}`);
+
+        // Use the main file endpoint to get thumbnailUrl (actual cover image)
+        const response = await fetch(`https://api.figma.com/v1/files/${fileKey}`, {
             headers: { "X-Figma-Token": figmaToken }
         });
 
-        if (!response.ok) throw new Error("Figma API error");
+        if (!response.ok) {
+            console.error("Figma API error:", response.status);
+            throw new Error("Figma API error");
+        }
+
         const data = await response.json();
-        return data.meta?.images?.[0] || `https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80`;
+        const thumbnailUrl = data.thumbnailUrl;
+
+        if (thumbnailUrl) {
+            console.log(`✅ Got Figma cover image: ${thumbnailUrl.substring(0, 50)}...`);
+            return thumbnailUrl;
+        }
+
+        console.warn("⚠️ No thumbnailUrl in response, using fallback");
+        return `https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80`;
     } catch (error) {
         console.error("Figma Thumbnail Error:", error);
         return "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80";

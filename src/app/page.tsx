@@ -65,6 +65,7 @@ export default function Home() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [sortBy, setSortBy] = useState<SortType>('recent');
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
   const [newUrl, setNewUrl] = useState("");
   const [newTitle, setNewTitle] = useState("");
@@ -84,9 +85,13 @@ export default function Home() {
   // Filter Panel State
   const [showFilterPanel, setShowFilterPanel] = useState(false);
 
+  // Projects State
+  const [projects, setProjects] = useState<any[]>([]);
+
   const fetchResources = async () => {
     try {
       setLoading(true);
+      console.log('📚 Fetching resources from Supabase...');
       const { data, error } = await supabase
         .from('resources')
         .select(`
@@ -98,7 +103,11 @@ export default function Home() {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase error fetching resources:', error);
+        throw error;
+      }
+
       const { data: adminData } = await supabase.from('admins').select('slack_user_id, name');
 
       const userMap: Record<string, string> = {};
@@ -113,18 +122,61 @@ export default function Home() {
         author_name: userMap[r.slack_user_id] || r.author_name || 'Unknown'
       }));
 
+      console.log(`✅ Successfully fetched ${enhancedData?.length || 0} resources`);
       setResources(enhancedData && enhancedData.length > 0 ? enhancedData : mockResources);
     } catch (err) {
-      console.warn("Supabase fetch failed:", err);
+      console.error('❌ Error fetching resources:', err);
+      console.error('   Error details:', {
+        message: (err as any)?.message,
+        code: (err as any)?.code,
+        details: (err as any)?.details,
+      });
+      console.error('   💡 Tip: Check that Supabase environment variables are set in Vercel');
       setResources(mockResources);
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchProjects = async () => {
+    try {
+      console.log('📂 Fetching projects from Supabase...');
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('❌ Supabase error fetching projects:', error);
+        throw error;
+      }
+
+      console.log(`✅ Successfully fetched ${data?.length || 0} projects`);
+      setProjects(data || []);
+    } catch (err) {
+      console.error('❌ Error fetching projects:', err);
+      console.error('   Error details:', {
+        message: (err as any)?.message,
+        code: (err as any)?.code,
+        details: (err as any)?.details,
+      });
+      console.error('   💡 Tip: Check that Supabase environment variables are set in Vercel');
+      setProjects([]);
+    }
+  };
+
   useEffect(() => {
     fetchResources();
+    fetchProjects();
   }, []);
+
+  const handleProjectClick = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    setActiveFilter('all'); // Reset type filter when selecting project
+    setDateFilter('all'); // Reset date filter
+    setSearchQuery(''); // Clear search
+  };
 
   const filteredResources = useMemo(() => {
     let result = [...resources];
@@ -148,6 +200,11 @@ export default function Home() {
         return match;
       });
       console.log(`✅ Found ${result.length} matches`);
+    }
+
+    // Project filter
+    if (selectedProjectId) {
+      result = result.filter(r => r.project_id === selectedProjectId);
     }
 
     // Type filter
@@ -398,7 +455,58 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Filter Button + Stats */}
+      {/* Search Bar - Standalone */}
+      <div className="main-search-section">
+        <div className="search-wrapper-large">
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            className="search-input-large"
+            placeholder="Search resources..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Recent Projects Carousel */}
+      <div className="projects-carousel-section">
+        <div className="section-header">
+          <h3 className="section-title">Recent Projects</h3>
+          <span className="project-count">{projects.length} projects</span>
+        </div>
+        <div className="carousel-container">
+          <div className="carousel-track">
+            {projects.map((project) => (
+              <div
+                key={project.id}
+                className={`project-card ${selectedProjectId === project.id ? 'project-card-active' : ''}`}
+                onClick={() => handleProjectClick(project.id)}
+              >
+                <div className="project-icon">📁</div>
+                <h4 className="project-name">{project.name}</h4>
+                <div className="project-meta">
+                  {project.lead_designer && (
+                    <span className="project-lead">👤 {project.lead_designer}</span>
+                  )}
+                  {project.status && (
+                    <span className={`project-status status-${project.status.toLowerCase()}`}>
+                      {project.status}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+            {projects.length === 0 && (
+              <div className="carousel-empty">
+                <span>No projects yet</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Toolbar - Filters & Sort */}
       <div className="toolbar">
         <button
           className={`btn btn-outline filter-toggle ${(activeFilter !== 'all' || dateFilter !== 'all') ? 'has-filters' : ''}`}
@@ -407,17 +515,14 @@ export default function Home() {
           🎛️ Filters {(activeFilter !== 'all' || dateFilter !== 'all') && <span className="filter-count">•</span>}
         </button>
 
-        {/* Search Bar */}
-        <div className="search-wrapper">
-          <span className="search-icon">🔍</span>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search resources..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+        {selectedProjectId && (
+          <button
+            className="btn btn-outline"
+            onClick={() => setSelectedProjectId(null)}
+          >
+            ✕ Clear Project Filter
+          </button>
+        )}
 
         <span className="resource-count">{filteredResources.length} resource{filteredResources.length !== 1 ? 's' : ''}</span>
 
@@ -1571,6 +1676,172 @@ export default function Home() {
           background: #C7B9FF; /* Light Purple */
           color: #4E2788;
           border: 2px solid #9747FF;
+        }
+
+        /* Main Search Section */
+        .main-search-section {
+          margin-bottom: var(--space-xl);
+        }
+
+        .search-wrapper-large {
+          position: relative;
+          width: 100%;
+        }
+
+        .search-wrapper-large .search-icon {
+          position: absolute;
+          left: var(--space-md);
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 20px;
+          color: var(--text-tertiary);
+          pointer-events: none;
+        }
+
+        .search-input-large {
+          width: 100%;
+          height: 56px;
+          padding: 0 var(--space-xl) 0 48px;
+          background: var(--bg-tertiary);
+          border: 2px solid var(--border-default);
+          border-radius: var(--radius-lg);
+          font-family: var(--font-sans);
+          font-size: var(--text-body);
+          color: var(--text-primary);
+          transition: all var(--transition-default);
+        }
+
+        .search-input-large::placeholder {
+          color: var(--text-tertiary);
+        }
+
+        .search-input-large:focus {
+          outline: none;
+          border-color: var(--color-blue);
+          background: var(--bg-secondary);
+          box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.15);
+        }
+
+        /* Projects Carousel */
+        .projects-carousel-section {
+          margin-bottom: var(--space-xl);
+        }
+
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: var(--space-md);
+        }
+
+        .section-title {
+          font-size: var(--text-h3);
+          font-weight: var(--weight-bold);
+          color: var(--text-primary);
+          margin: 0;
+        }
+
+        .carousel-container {
+          position: relative;
+          overflow-x: auto;
+          overflow-y: hidden;
+          -webkit-overflow-scrolling: touch;
+          margin: 0 calc(-1 * var(--space-lg));
+          padding: 0 var(--space-lg) var(--space-md);
+          width: 100%;
+          max-width: 100vw;
+        }
+
+        .carousel-container::-webkit-scrollbar {
+          height: 8px;
+        }
+
+        .carousel-container::-webkit-scrollbar-track {
+          background: var(--bg-tertiary);
+          border-radius: var(--radius-sm);
+        }
+
+        .carousel-container::-webkit-scrollbar-thumb {
+          background: var(--border-strong);
+          border-radius: var(--radius-sm);
+        }
+
+        .carousel-track {
+          display: flex;
+          gap: var(--space-md);
+          min-width: min-content;
+        }
+
+        .project-card {
+          min-width: 240px;
+          max-width: 240px;
+          padding: var(--space-lg);
+          background: var(--bg-tertiary);
+          border: 2px solid var(--border-default);
+          border-radius: var(--radius-lg);
+          cursor: pointer;
+          transition: all var(--transition-default);
+        }
+
+        .project-card:hover {
+          border-color: var(--color-blue);
+          transform: translateY(-4px);
+          box-shadow: var(--shadow-blue);
+        }
+
+        .project-card-active {
+          border-color: var(--color-blue);
+          background: var(--bg-secondary);
+          box-shadow: var(--shadow-blue);
+        }
+
+        .project-icon {
+          font-size: 32px;
+          margin-bottom: var(--space-md);
+        }
+
+        .project-name {
+          font-size: var(--text-body);
+          font-weight: var(--weight-semibold);
+          color: var(--text-primary);
+          margin: 0 0 var(--space-sm) 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .project-meta {
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-xs);
+        }
+
+        .project-lead {
+          font-size: var(--text-caption);
+          color: var(--text-tertiary);
+        }
+
+        .project-status {
+          display: inline-block;
+          padding: 4px 8px;
+          border-radius: var(--radius-sm);
+          font-size: var(--text-caption);
+          font-weight: var(--weight-medium);
+        }
+
+        .status-active {
+          background: rgba(0, 255, 136, 0.15);
+          color: var(--color-green);
+        }
+
+        .carousel-empty {
+          min-width: 240px;
+          padding: var(--space-xl);
+          text-align: center;
+          color: var(--text-tertiary);
+          background: var(--bg-tertiary);
+          border: 2px dashed var(--border-default);
+          border-radius: var(--radius-lg);
         }
       `}</style>
     </div>
