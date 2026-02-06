@@ -10,8 +10,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 async function updateSettings() {
     console.log('🔌 Connecting to Supabase...');
     const updates = [
-        { key: 'figma_access_token', value: 'figd_kG15Zn9R4q12CMn-7CL2bQXOpq2uEJFLR11Fu7Sr' },
-        { key: 'figma_team_id', value: '1133445507023682143' },
+        { key: 'figma_access_token', value: process.env.FIGMA_ACCESS_TOKEN || 'CONFIGURE_IN_ENV' },
+        { key: 'figma_team_id', value: process.env.FIGMA_TEAM_ID || '1133445507023682143' },
     ];
 
     for (const update of updates) {

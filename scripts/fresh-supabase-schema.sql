@@ -56,11 +56,13 @@ CREATE TABLE IF NOT EXISTS settings (
 );
 
 -- Insert default settings with your Figma credentials
+-- ⚠️ CRITICAL SECURITY: DO NOT store real tokens/keys here!
+-- Configure actual values in Supabase dashboard or via environment variables
 INSERT INTO settings (key, value) VALUES 
-('figma_access_token', 'figd_kG15Zn9R4q12CMn-7CL2bQXOpq2uEJFLR11Fu7Sr'),
-('figma_team_id', '1133445507023682143'),
-('slack_notify_channel', 'C0A9HM0GP0W'),
-('groq_api_key', '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')
+('figma_access_token', 'YOUR_FIGMA_TOKEN_HERE'),
+('figma_team_id', 'YOUR_TEAM_ID_HERE'),
+('slack_notify_channel', 'YOUR_SLACK_CHANNEL_HERE'),
+('groq_api_key', 'YOUR_GROQ_API_KEY_HERE')
 ON CONFLICT (key) DO UPDATE SET 
   value = EXCLUDED.value, 
   updated_at = NOW();
