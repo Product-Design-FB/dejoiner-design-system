@@ -88,6 +88,10 @@ export default function Home() {
   // Projects State
   const [projects, setProjects] = useState<any[]>([]);
 
+  // View Mode State
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showAllProjects, setShowAllProjects] = useState(false);
+
   const fetchResources = async () => {
     try {
       setLoading(true);
@@ -469,40 +473,43 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Recent Projects Carousel */}
-      <div className="projects-carousel-section">
+      {/* Recent Projects Grid */}
+      <div className="projects-section">
         <div className="section-header">
           <h3 className="section-title">Recent Projects</h3>
-          <span className="project-count">{projects.length} projects</span>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => setShowAllProjects(!showAllProjects)}
+          >
+            {showAllProjects ? '⊟ Show Less' : '⊞ View All'} ({projects.length})
+          </button>
         </div>
-        <div className="carousel-container">
-          <div className="carousel-track">
-            {projects.map((project) => (
-              <div
-                key={project.id}
-                className={`project-card ${selectedProjectId === project.id ? 'project-card-active' : ''}`}
-                onClick={() => handleProjectClick(project.id)}
-              >
-                <div className="project-icon">📁</div>
-                <h4 className="project-name">{project.name}</h4>
-                <div className="project-meta">
-                  {project.lead_designer && (
-                    <span className="project-lead">👤 {project.lead_designer}</span>
-                  )}
-                  {project.status && (
-                    <span className={`project-status status-${project.status.toLowerCase()}`}>
-                      {project.status}
-                    </span>
-                  )}
-                </div>
+        <div className="projects-grid">
+          {(showAllProjects ? projects : projects.slice(0, 7)).map((project) => (
+            <div
+              key={project.id}
+              className={`project-card ${selectedProjectId === project.id ? 'project-card-active' : ''}`}
+              onClick={() => handleProjectClick(project.id)}
+            >
+              <div className="project-icon">📁</div>
+              <h4 className="project-name">{project.name}</h4>
+              <div className="project-meta">
+                {project.lead_designer && (
+                  <span className="project-lead">👤 {project.lead_designer}</span>
+                )}
+                {project.status && (
+                  <span className={`project-status status-${project.status.toLowerCase()}`}>
+                    {project.status}
+                  </span>
+                )}
               </div>
-            ))}
-            {projects.length === 0 && (
-              <div className="carousel-empty">
-                <span>No projects yet</span>
-              </div>
-            )}
-          </div>
+            </div>
+          ))}
+          {projects.length === 0 && (
+            <div className="carousel-empty">
+              <span>No projects yet</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -523,6 +530,22 @@ export default function Home() {
             ✕ Clear Project Filter
           </button>
         )}
+
+        {/* View Toggle */}
+        <div className="view-toggle-group">
+          <button
+            className={`btn btn-outline ${viewMode === 'grid' ? 'active' : ''}`}
+            onClick={() => setViewMode('grid')}
+          >
+            ⊞ Grid
+          </button>
+          <button
+            className={`btn btn-outline ${viewMode === 'list' ? 'active' : ''}`}
+            onClick={() => setViewMode('list')}
+          >
+            ☰ List
+          </button>
+        </div>
 
         <span className="resource-count">{filteredResources.length} resource{filteredResources.length !== 1 ? 's' : ''}</span>
 
@@ -643,8 +666,8 @@ export default function Home() {
         </div>
       )}
 
-      {/* Resource Grid */}
-      <div className="resource-grid">
+      {/* Resource Grid/List */}
+      <div className={`resource-${viewMode}`}>
         {loading ? (
           <div className="loading-state">
             <div className="spinner"></div>
