@@ -1324,19 +1324,19 @@ a:hover {
 }
 
 /* Grid responsive breakpoints */
-@media (max-width: 1800px) {
+@media (max-width: 2000px) {
   .resource-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1600px) {
   .resource-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1200px) {
   .resource-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1347,7 +1347,7 @@ a:hover {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .resource-grid {
     grid-template-columns: 1fr;
   }
